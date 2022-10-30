@@ -9,6 +9,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class CubicSplineController {
     @FXML
@@ -39,12 +40,30 @@ public class CubicSplineController {
                 clickPoint.getX() - POINT_RADIUS, clickPoint.getY() - POINT_RADIUS,
                 2 * POINT_RADIUS, 2 * POINT_RADIUS);
 
-        if (points.size() > 0) {
+        /*if (points.size() > 0) {
             final Point2D lastPoint = points.get(points.size() - 1);
             graphicsContext.strokeLine(lastPoint.getX(), lastPoint.getY(), clickPoint.getX(), clickPoint.getY());
-        }
+        }*/
         points.add(clickPoint);
         spline.addData(clickPoint.getX(), clickPoint.getY());
 
+        if (points.size() > 1){
+            spline.interpolate();
+            List<Double> splineX = spline.getSplineXValues();
+            List<Double> splineY = spline.getSplineYValues();
+
+            graphicsContext.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+            for (Point2D point : points){
+                graphicsContext.fillOval(
+                        point.getX() - POINT_RADIUS, point.getY() - POINT_RADIUS,
+                        2 * POINT_RADIUS, 2 * POINT_RADIUS);
+            }
+            for (int i = 0; i < splineX.size(); i++) {
+                graphicsContext.fillOval(
+                        splineX.get(i), splineY.get(i),
+                        1, 1);
+
+            }
+        }
     }
 }
