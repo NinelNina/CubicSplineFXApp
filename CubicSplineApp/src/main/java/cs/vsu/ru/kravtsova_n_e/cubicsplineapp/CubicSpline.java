@@ -4,14 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CubicSpline {
-    //List<List<Double>> data = new ArrayList<>();
     List<Double> x = new ArrayList<>();
     List<Double> y = new ArrayList<>();
+
     List<Double> a = new ArrayList<>();
     List<Double> b = new ArrayList<>();
     List<Double> c = new ArrayList<>();
     List<Double> d = new ArrayList<>();
-    List<Double> ssd = new ArrayList<>(); //SplineSecondDerivatives - вторые производные от сплайна
 
     List<Double> splineXValues = new ArrayList<>();
     List<Double> splineYValues = new ArrayList<>();
@@ -48,8 +47,10 @@ public class CubicSpline {
     }
 
     public void interpolate() {
-        calculateSplineSecondDerivatives();
-        calculateCoefficients();
+        List<Double> splineXValues = new ArrayList<>();
+        List<Double> splineYValues = new ArrayList<>();
+
+        calculateCoefficients(calculateSplineSecondDerivatives());
         double dx = 0.01;
         double x_ = x.get(0);
         while (x_ <= x.get(x.size()-1)) {
@@ -62,10 +63,13 @@ public class CubicSpline {
             splineYValues.add(a.get(i) * Math.pow(xdiff, 3) + b.get(i) * Math.pow(xdiff, 2) + c.get(i) * xdiff + d.get(i));
             x_ += dx;
         }
+
+        this.splineXValues = splineXValues;
+        this.splineYValues = splineYValues;
     }
 
     //Вычисление вторых производных кубического сплайна для всех участков
-    void calculateSplineSecondDerivatives() {
+    private List<Double> calculateSplineSecondDerivatives() {
         List<Double> bt = new ArrayList<>();
         List<Double> at = new ArrayList<>();
         List<Double> ct = new ArrayList<>();
@@ -75,9 +79,9 @@ public class CubicSpline {
 
         List<Double> beta = new ArrayList<>();
         List<Double> rho = new ArrayList<>();
+        List<Double> ssd = new ArrayList<>();
         beta.add(bt.get(0));
         rho.add(r.get(0));
-
         ssd.add(0.0);
 
         for (int i = 1; i < x.size(); i++) {
@@ -90,10 +94,12 @@ public class CubicSpline {
         for (int i = 2; i < x.size() - 2; i++) {
             ssd.set(x.size() - i, (rho.get(x.size() - i) - ct.get(x.size() - i) * ssd.get(x.size() - i + 1)) / beta.get(x.size() - i));
         }
+
+        return ssd;
     }
 
     //Вычисление элементов тридиагональной матрицы T и вектора-столбца R
-    void buildTridiagonalMatrix(List<Double> at, List<Double> bt, List<Double> ct, List<Double> r){
+    private void buildTridiagonalMatrix(List<Double> at, List<Double> bt, List<Double> ct, List<Double> r){
         bt.add(1.0);
         ct.add(x.get(1) - x.get(0));
         at.add(0.0);
@@ -115,7 +121,11 @@ public class CubicSpline {
     }
 
     //Вычисление коэффициентов кубического сплайна
-    void calculateCoefficients(){
+    private void calculateCoefficients(List<Double> ssd){
+        List<Double> a = new ArrayList<>();
+        List<Double> b = new ArrayList<>();
+        List<Double> c = new ArrayList<>();
+        List<Double> d = new ArrayList<>();
         for (int i = 0; i < y.size() - 1; i++) {
             d.add(y.get(i));
             b.add(ssd.get(i) / 2);
@@ -124,5 +134,9 @@ public class CubicSpline {
             ctmp = ctmp - ((x.get(i + 1) - x.get(i)) * (ssd.get(i + 1) + 2 * ssd.get(i)) / 6);
             c.add(ctmp);
         }
+        this.a = a;
+        this.b = b;
+        this.c = c;
+        this.d = d;
     }
 }

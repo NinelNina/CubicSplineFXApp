@@ -40,10 +40,6 @@ public class CubicSplineController {
                 clickPoint.getX() - POINT_RADIUS, clickPoint.getY() - POINT_RADIUS,
                 2 * POINT_RADIUS, 2 * POINT_RADIUS);
 
-        /*if (points.size() > 0) {
-            final Point2D lastPoint = points.get(points.size() - 1);
-            graphicsContext.strokeLine(lastPoint.getX(), lastPoint.getY(), clickPoint.getX(), clickPoint.getY());
-        }*/
         points.add(clickPoint);
         spline.addData(clickPoint.getX(), clickPoint.getY());
 
